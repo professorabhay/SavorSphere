@@ -1,21 +1,31 @@
-package main;
+package main
 
-import (
-	"fmt"
-	"github.com/professorabhay/config"
+import(
+	routes "github.com/professorabhay/savorsphere/routes"
+	"os"
+	"github.com/gin-gonic/gin"
 )
 
 func main(){
-	fmt.Println("Hello SavorSphere!");
+	port= os.Getenv("PORT")
 
-	configPath := "config/config.json"
-	cfg, err := config.LoadConfig(configPath)
-	if err != nil {
-		fmt.Printf("Error loading configuration: %v\n", err)
-		return
+	if port==""{
+		port="8000"
 	}
 
-	fmt.Printf("Server Port: %d\n", cfg.Server.Port)
-	fmt.Printf("Database Connection String: %s\n", cfg.Database.ConnectionString)
-	fmt.Printf("Spoonacular API Key: %s\n", cfg.SpoonacularAPI.APIKey)
+	router := gin.New()
+	router.Use(gin.Logger())
+
+	routes.AuthRoutes(router)
+	routes.UserRoutes(router)
+
+	router.GET("/api-1", func(c *gin.Context){ //similar to w r in mux
+		c.JSON(200, gin.H{"success":"Access API"})
+	})
+
+	router.GET("/api-2", func(c *gin.Context){
+		c.JSON(200, gin.H{"success":"Access granted for api-2"})
+	})
+
+	router.Run(":" + port) 
 }
